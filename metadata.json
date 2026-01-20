@@ -1,0 +1,5 @@
+{
+  "name": "Breathe is Matter - AQI Forecaster",
+  "description": "Generate a 14-day Air Quality Index forecast calendar for any city using Gemini AI, compatible with iOS and macOS Calendar.",
+  "requestFramePermissions": []
+}
