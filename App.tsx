@@ -12,7 +12,8 @@ import {
   Sun,
   Cloud,
   ChevronUp,
-  Activity
+  Activity,
+  Share2
 } from 'lucide-react';
 import { fetchAQIForecast } from './services/weatherService';
 import { generateICS, downloadICS, generateDataUri } from './utils/icsGenerator';
@@ -28,6 +29,7 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [icsDataUri, setIcsDataUri] = useState<string>('');
   const [copied, setCopied] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
   
   const initialSearchDone = useRef(false);
 
@@ -73,6 +75,24 @@ function App() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
+  };
+
+  const handleShare = () => {
+    if (!data) return;
+    const shareUrl = `${window.location.origin}${window.location.pathname}?city=${encodeURIComponent(data.city)}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: `AQI Forecast for ${data.city}`,
+        text: `Check out the 14-day air quality forecast for ${data.city} on Air is Matter!`,
+        url: shareUrl,
+      }).catch(console.error);
+    } else {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        setShareCopied(true);
+        setTimeout(() => setShareCopied(false), 2000);
+      });
+    }
   };
 
   // Find today's data point more accurately
@@ -190,21 +210,43 @@ function App() {
                         </div>
                     </div>
 
-                    <button
-                        type={status === LoadingState.LOADING ? 'button' : 'submit'}
-                        onClick={data ? () => downloadICS(`Forecast-${data.city}.ics`, generateICS(data)) : undefined}
-                        disabled={status === LoadingState.LOADING || (!city && !data)}
-                        className="w-full bg-[#ffc100] hover:bg-[#ffb000] text-amber-950 text-2xl font-extrabold py-6 rounded-[24px] shadow-xl hover:shadow-[#ffc100]/20 active:scale-[0.97] transition-all disabled:opacity-50 flex items-center justify-center gap-4"
-                    >
-                        {status === LoadingState.LOADING ? (
-                            <div className="animate-spin h-7 w-7 border-[3px] border-amber-900 border-t-transparent rounded-full"></div>
-                        ) : data ? (
-                          <>
-                            <CalendarIcon size={28} className="stroke-[2.5px]" />
-                            Add to your Calendar
-                          </>
-                        ) : 'Get the Forecast'}
-                    </button>
+                    <div className="flex flex-col gap-4">
+                        <button
+                            type={status === LoadingState.LOADING ? 'button' : 'submit'}
+                            onClick={data ? () => downloadICS(`Forecast-${data.city}.ics`, generateICS(data)) : undefined}
+                            disabled={status === LoadingState.LOADING || (!city && !data)}
+                            className="w-full bg-[#ffc100] hover:bg-[#ffb000] text-amber-950 text-2xl font-extrabold py-6 rounded-[24px] shadow-xl hover:shadow-[#ffc100]/20 active:scale-[0.97] transition-all disabled:opacity-50 flex items-center justify-center gap-4"
+                        >
+                            {status === LoadingState.LOADING ? (
+                                <div className="animate-spin h-7 w-7 border-[3px] border-amber-900 border-t-transparent rounded-full"></div>
+                            ) : data ? (
+                              <>
+                                <CalendarIcon size={28} className="stroke-[2.5px]" />
+                                Add to your Calendar
+                              </>
+                            ) : 'Get the Forecast'}
+                        </button>
+
+                        {data && (
+                            <button
+                                type="button"
+                                onClick={handleShare}
+                                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xl font-bold py-4 rounded-[20px] transition-all active:scale-[0.98] flex items-center justify-center gap-3 border border-slate-200"
+                            >
+                                {shareCopied ? (
+                                    <>
+                                        <Check size={22} className="text-green-600" />
+                                        Copied Link!
+                                    </>
+                                ) : (
+                                    <>
+                                        <Share2 size={22} />
+                                        Share Forecast
+                                    </>
+                                )}
+                            </button>
+                        )}
+                    </div>
                 </form>
 
                 {error && <div className="bg-red-50 text-red-600 px-5 py-4 rounded-2xl text-base text-center font-bold border border-red-100 shadow-sm">{error}</div>}
