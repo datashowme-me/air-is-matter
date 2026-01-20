@@ -18,5 +18,9 @@
     "types": ["node"]
   },
   "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["services/geminiService.ts", "node_modules", "dist"]
+  "exclude": [
+    "services/geminiService.ts",
+    "node_modules",
+    "dist"
+  ]
 }
