@@ -5,13 +5,13 @@ export const generateICS = (data: ForecastResponse): string => {
   const now = new Date();
   const timestamp = now.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
   
-  // Use current hostname for UID generation if available, otherwise default
-  const domain = typeof window !== 'undefined' ? window.location.hostname : 'breathe-is-matter.com';
+  // Use current hostname for UID generation if available
+  const domain = typeof window !== 'undefined' ? window.location.hostname : 'air-is-matter.com';
 
   let icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Breathe is Matter//AQI Forecast//EN',
+    'PRODID:-//Air is Matter//AQI Forecast//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     `X-WR-CALNAME:AQI Forecast - ${city}`,
@@ -19,10 +19,7 @@ export const generateICS = (data: ForecastResponse): string => {
   ];
 
   forecast.forEach((day, index) => {
-    // Format date string YYYYMMDD
     const dateStr = day.date.replace(/-/g, '');
-    
-    // Create a unique UID using the dynamic domain
     const uid = `${timestamp}-${index}@${domain}`;
 
     // Determine emoji based on AQI
@@ -33,7 +30,6 @@ export const generateICS = (data: ForecastResponse): string => {
     if (day.aqi > 200) emoji = '🟣';
     if (day.aqi > 300) emoji = '🟤';
 
-    // Format pollutants string
     let pollutantStr = '';
     if (day.pollutants) {
       const p = day.pollutants;
@@ -58,7 +54,7 @@ export const generateICS = (data: ForecastResponse): string => {
       `SUMMARY:${emoji} AQI: ${day.aqi} (${day.status})`,
       `DESCRIPTION:Forecast for ${city}. Status: ${day.status}. ${day.description}${pollutantStr}`,
       'STATUS:CONFIRMED',
-      'TRANSP:TRANSPARENT', // Show as "Free" so it doesn't block the user's calendar
+      'TRANSP:TRANSPARENT',
       'END:VEVENT'
     ];
   });
@@ -69,7 +65,6 @@ export const generateICS = (data: ForecastResponse): string => {
 };
 
 export const generateDataUri = (content: string): string => {
-  // Use UTF-8 compatible base64 encoding
   const base64 = btoa(unescape(encodeURIComponent(content)));
   return `data:text/calendar;charset=utf-8;base64,${base64}`;
 };
