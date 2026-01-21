@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Calendar as CalendarIcon, 
+import {
+  Calendar as CalendarIcon,
   CloudSun,
   Wind,
   CheckCircle2,
@@ -11,7 +11,6 @@ import {
   Check,
   Sun,
   Cloud,
-  ChevronUp,
   Activity,
   Share2
 } from 'lucide-react';
@@ -19,6 +18,7 @@ import { fetchAQIForecast } from './services/weatherService';
 import { generateICS, downloadICS } from './utils/icsGenerator';
 import { ForecastResponse, LoadingState } from './types';
 import { ForecastChart } from './components/ForecastChart';
+import { DonationModal } from './components/DonationModal';
 
 type ExtendedForecastResponse = ForecastResponse & { isOfficialData?: boolean };
 
@@ -30,7 +30,8 @@ function App() {
   const [subscriptionUrl, setSubscriptionUrl] = useState<string>('');
   const [copied, setCopied] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
-  
+  const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
+
   const initialSearchDone = useRef(false);
 
   useEffect(() => {
@@ -105,6 +106,14 @@ function App() {
     window.location.href = webcalUrl;
   };
 
+  const handleDonationClick = () => {
+    setIsDonationModalOpen(true);
+  };
+
+  const handleCloseDonationModal = () => {
+    setIsDonationModalOpen(false);
+  };
+
   const todayStr = new Date().toISOString().split('T')[0];
   const currentDay = data?.forecast.find(f => f.date === todayStr) || data?.forecast[0];
   const pm25Value = currentDay?.pollutants?.pm2_5;
@@ -141,20 +150,12 @@ function App() {
                 </p>
 
                 <div className="flex flex-wrap gap-5 items-center">
-                    <button className="bg-white text-slate-900 px-8 py-5 rounded-2xl font-bold flex items-center gap-2 hover:bg-slate-50 transition-all shadow-md active:scale-95">
+                    <button
+                        onClick={handleDonationClick}
+                        className="bg-white text-slate-900 px-8 py-5 rounded-2xl font-bold flex items-center gap-2 hover:bg-slate-50 transition-all shadow-md active:scale-95"
+                    >
                         Make a donation <Coffee size={24} className="text-[#ff5b00]" />
                     </button>
-                    
-                    <div className="bg-white/20 backdrop-blur-sm border border-white/20 p-1.5 pr-2 rounded-2xl flex items-center pr-6 hover:bg-white/10 transition-all cursor-pointer ring-1 ring-white/10">
-                        <div className="bg-white text-slate-900 p-3 rounded-xl mr-4 flex items-center justify-center w-12 h-12 text-2xl font-black italic">P</div>
-                        <div className="flex flex-col mr-6">
-                           <span className="text-[10px] uppercase font-bold tracking-[0.1em] opacity-70 leading-none mb-1 text-white">Featured on</span>
-                           <span className="font-bold text-base leading-none text-white">Product Hunt</span>
-                        </div>
-                        <div className="ml-auto pl-4 border-l border-white/30 flex items-center gap-1.5 font-bold text-lg text-white">
-                            <ChevronUp size={20} className="stroke-[3px]" /> 100
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -297,6 +298,12 @@ function App() {
              </div>
         </div>
       )}
+
+      {/* Donation Modal */}
+      <DonationModal
+        isOpen={isDonationModalOpen}
+        onClose={handleCloseDonationModal}
+      />
     </div>
   );
 }
