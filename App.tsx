@@ -303,7 +303,7 @@ function App() {
                  </div>
                  <div className="bg-white rounded-[40px] shadow-2xl border border-slate-100 overflow-hidden">
                      <div className="p-10 lg:p-16">
-                        <ForecastChart data={data.forecast} />
+                        <ForecastChart data={data.forecast.filter(f => f.date >= todayStr)} />
                         <div className="mt-16 pt-16 border-t border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-12">
                             <div className="flex items-start gap-6">
                                 <div className="bg-blue-50 p-4 rounded-3xl text-blue-500"><Wind size={28} /></div>
