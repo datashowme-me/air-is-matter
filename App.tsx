@@ -56,10 +56,11 @@ function App() {
       const result = await fetchAQIForecast(query);
       setData(result);
 
-      // Construct a real URL for calendar subscription
+      // Construct a webcal URL for calendar subscription
       const baseUrl = window.location.origin;
-      const subUrl = `${baseUrl}/api/ics?city=${encodeURIComponent(result.city)}`;
-      setSubscriptionUrl(subUrl);
+      const httpsUrl = `${baseUrl}/api/ics?city=${encodeURIComponent(result.city)}`;
+      const webcalUrl = httpsUrl.replace(/^https?:\/\//, 'webcal://');
+      setSubscriptionUrl(webcalUrl);
 
       setStatus(LoadingState.SUCCESS);
 
@@ -126,9 +127,8 @@ function App() {
 
   const handleAddToCalendar = () => {
     if (!subscriptionUrl) return;
-    // webcal:// protocol opens the calendar app directly
-    const webcalUrl = subscriptionUrl.replace(/^https?:\/\//, 'webcal://');
-    window.location.href = webcalUrl;
+    // URL is already in webcal:// format
+    window.location.href = subscriptionUrl;
   };
 
   const handleDonationClick = () => {
@@ -278,7 +278,7 @@ function App() {
                     <div className="bg-slate-50 rounded-2xl p-5 flex items-center gap-5 border border-slate-100 group relative">
                         <div className="flex-1 overflow-hidden">
                              <code className="block w-full text-[13px] text-slate-400 truncate font-mono select-all">
-                                {subscriptionUrl ? subscriptionUrl : "https://air-is-matter.com/api/ics?city=..."}
+                                {subscriptionUrl ? subscriptionUrl : "webcal://air-is-matter.com/api/ics?city=..."}
                              </code>
                         </div>
                         <button 
