@@ -55,13 +55,21 @@ function App() {
     try {
       const result = await fetchAQIForecast(query);
       setData(result);
-      
+
       // Construct a real URL for calendar subscription
       const baseUrl = window.location.origin;
       const subUrl = `${baseUrl}/api/ics?city=${encodeURIComponent(result.city)}`;
       setSubscriptionUrl(subUrl);
-      
+
       setStatus(LoadingState.SUCCESS);
+
+      // Track city search in Google Analytics
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', 'city_input', {
+          city_name: result.city,
+          search_query: query
+        });
+      }
     } catch (err: any) {
       setError(err.message || 'Something went wrong');
       setStatus(LoadingState.ERROR);
