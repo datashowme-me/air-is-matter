@@ -78,6 +78,15 @@ function App() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Track "Get the Forecast" button click in Google Analytics
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'button_click', {
+        button_name: 'get_the_forecast',
+        city_query: city
+      });
+    }
+
     performSearch(city);
   };
 
@@ -86,6 +95,14 @@ function App() {
     navigator.clipboard.writeText(subscriptionUrl).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+
+      // Track "Copy" button click in Google Analytics
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', 'button_click', {
+          button_name: 'copy',
+          subscription_url: subscriptionUrl
+        });
+      }
     });
   };
 
