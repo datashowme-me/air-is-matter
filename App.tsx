@@ -12,13 +12,16 @@ import {
   Sun,
   Cloud,
   Activity,
-  Share2
+  Share2,
+  HelpCircle,
+  MapPin
 } from 'lucide-react';
 import { fetchAQIForecast } from './services/weatherService';
 import { generateICS, downloadICS } from './utils/icsGenerator';
 import { ForecastResponse, LoadingState } from './types';
 import { ForecastChart } from './components/ForecastChart';
 import { DonationModal } from './components/DonationModal';
+import { Onboarding } from './components/Onboarding';
 
 type ExtendedForecastResponse = ForecastResponse & { isOfficialData?: boolean };
 
@@ -31,8 +34,17 @@ function App() {
   const [copied, setCopied] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
 
   const initialSearchDone = useRef(false);
+
+  // Check if user has seen onboarding
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+    if (!hasSeenOnboarding) {
+      setIsOnboardingOpen(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (initialSearchDone.current) return;
@@ -139,6 +151,15 @@ function App() {
     setIsDonationModalOpen(false);
   };
 
+  const handleOnboardingComplete = () => {
+    localStorage.setItem('hasSeenOnboarding', 'true');
+    setIsOnboardingOpen(false);
+  };
+
+  const handleOnboardingClose = () => {
+    setIsOnboardingOpen(false);
+  };
+
   const todayStr = new Date().toISOString().split('T')[0];
   const currentDay = data?.forecast.find(f => f.date === todayStr) || data?.forecast[0];
   const pm25Value = currentDay?.pollutants?.pm2_5;
@@ -155,6 +176,17 @@ function App() {
 
   return (
     <div className="min-h-screen bg-white font-sans text-slate-800 flex flex-col">
+      {/* Help button */}
+      <button
+        onClick={() => setIsOnboardingOpen(true)}
+        className="fixed bottom-6 right-6 z-40 bg-orange-600 hover:bg-orange-700 text-white p-3 sm:p-4 rounded-full shadow-xl transition-all hover:scale-110 active:scale-95 flex items-center gap-2 group"
+        aria-label="Show tutorial"
+        title="Show tutorial"
+      >
+        <HelpCircle size={20} className="sm:w-6 sm:h-6" />
+        <span className="hidden sm:inline font-semibold text-sm">How it works</span>
+      </button>
+
       <div className="flex flex-col lg:flex-row flex-grow min-h-[95vh]">
         
         {/* Left Side: Branding */}
@@ -205,13 +237,20 @@ function App() {
                 </div>
 
                 <form onSubmit={handleSearch} className="space-y-8">
-                    <input
-                        type="text"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        placeholder="Type city name..."
-                        className="w-full px-8 py-6 text-2xl border-[3px] border-slate-100 rounded-[28px] focus:ring-8 focus:ring-orange-50 focus:border-[#ff5b00] outline-none transition-all placeholder:text-slate-300 text-center font-medium"
-                    />
+                    <div className="relative">
+                        <input
+                            type="text"
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                            placeholder="Type city name..."
+                            className="w-full px-8 py-6 text-2xl border-[3px] border-slate-100 rounded-[28px] focus:ring-8 focus:ring-orange-50 focus:border-[#ff5b00] outline-none transition-all placeholder:text-slate-300 text-center font-medium shadow-sm hover:shadow-md hover:border-slate-200"
+                        />
+                        {!city && (
+                            <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-20">
+                                <MapPin size={32} className="text-slate-400" />
+                            </div>
+                        )}
+                    </div>
 
                     <div className="flex justify-center items-center gap-12 py-2">
                         <div className="flex items-center gap-4">
@@ -271,22 +310,35 @@ function App() {
                 {error && <div className="bg-red-50 text-red-600 px-5 py-4 rounded-2xl text-base text-center font-bold border border-red-100">{error}</div>}
 
                 <div className="space-y-5 pt-8">
-                    <p className="text-center text-slate-500 text-sm leading-relaxed px-10 font-medium">
-                        To subscribe, copy this URL and add it to your calendar app as a "New Calendar Subscription".
-                    </p>
-                    
-                    <div className="bg-slate-50 rounded-2xl p-5 flex items-center gap-5 border border-slate-100 group relative">
+                    <div className="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-2xl p-4 flex items-start gap-3">
+                        <CalendarIcon className="text-blue-500 w-5 h-5 flex-shrink-0 mt-0.5" />
+                        <p className="text-sm text-blue-800 dark:text-blue-300 leading-relaxed">
+                            <strong>Quick tip:</strong> Copy this URL and add it to your calendar app as a "New Calendar Subscription".
+                        </p>
+                    </div>
+
+                    <div className="bg-slate-50 rounded-2xl p-5 flex items-center gap-5 border border-slate-100 group relative hover:border-slate-200 hover:bg-slate-100/50 transition-all">
                         <div className="flex-1 overflow-hidden">
-                             <code className="block w-full text-[13px] text-slate-400 truncate font-mono select-all">
+                             <code className={`block w-full text-[13px] ${subscriptionUrl ? 'text-slate-600' : 'text-slate-400'} truncate font-mono select-all`}>
                                 {subscriptionUrl ? subscriptionUrl : "webcal://air-is-matter.com/api/ics?city=..."}
                              </code>
                         </div>
-                        <button 
+                        <button
                             onClick={copyLinkToClipboard}
                             disabled={!subscriptionUrl}
-                            className="bg-white hover:bg-slate-50 text-slate-800 px-6 py-3 rounded-xl text-sm font-extrabold border border-slate-200 shadow-sm transition-all disabled:opacity-30"
+                            className="bg-white hover:bg-slate-50 text-slate-800 px-6 py-3 rounded-xl text-sm font-extrabold border border-slate-200 shadow-sm transition-all disabled:opacity-30 active:scale-95"
                         >
-                            {copied ? <Check size={18} className="text-green-500 stroke-[3px]" /> : 'Copy'}
+                            {copied ? (
+                                <span className="flex items-center gap-2">
+                                    <Check size={18} className="text-green-500 stroke-[3px]" />
+                                    Copied!
+                                </span>
+                            ) : (
+                                <span className="flex items-center gap-2">
+                                    <Copy size={16} />
+                                    Copy
+                                </span>
+                            )}
                         </button>
                     </div>
                 </div>
@@ -328,6 +380,13 @@ function App() {
       <DonationModal
         isOpen={isDonationModalOpen}
         onClose={handleCloseDonationModal}
+      />
+
+      {/* Onboarding */}
+      <Onboarding
+        isOpen={isOnboardingOpen}
+        onClose={handleOnboardingClose}
+        onComplete={handleOnboardingComplete}
       />
     </div>
   );
