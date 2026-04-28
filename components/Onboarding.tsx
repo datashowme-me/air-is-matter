@@ -1,5 +1,15 @@
-import React, { useState } from 'react';
-import { X, ArrowRight, MapPin, Copy, Calendar, CheckCircle, Info } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import {
+  Apple,
+  ArrowRight,
+  Calendar,
+  CheckCircle2,
+  Copy,
+  MapPin,
+  MonitorSmartphone,
+  Sparkles,
+  X,
+} from 'lucide-react';
 
 interface OnboardingProps {
   isOpen: boolean;
@@ -9,17 +19,46 @@ interface OnboardingProps {
 
 type Step = 1 | 2 | 3;
 
+const stepOrder: Step[] = [1, 2, 3];
+
 export const Onboarding: React.FC<OnboardingProps> = ({ isOpen, onClose, onComplete }) => {
   const [currentStep, setCurrentStep] = useState<Step>(1);
+
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentStep(1);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        handleSkip();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const handleNext = () => {
     if (currentStep < 3) {
       setCurrentStep((currentStep + 1) as Step);
-    } else {
-      onComplete();
+      return;
     }
+
+    onComplete();
   };
 
   const handleSkip = () => {
@@ -34,350 +73,308 @@ export const Onboarding: React.FC<OnboardingProps> = ({ isOpen, onClose, onCompl
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="relative w-full max-w-6xl bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[650px] max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-md animate-in fade-in duration-300">
+      <div className="relative flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-[2.5rem] border border-white/70 bg-[#fffaf2] shadow-[0_44px_120px_-48px_rgba(15,23,42,0.85)] lg:flex-row">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 12% 14%, rgba(255, 184, 102, 0.22), transparent 28%), radial-gradient(circle at 84% 20%, rgba(255, 145, 88, 0.16), transparent 24%)',
+          }}
+        />
 
-        {/* Close button */}
         <button
           onClick={handleSkip}
-          className="absolute top-6 right-6 z-10 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          className="absolute right-5 top-5 z-20 rounded-full border border-slate-200 bg-white/85 p-2 text-slate-600 transition hover:bg-white hover:text-slate-900"
           aria-label="Close onboarding"
         >
-          <X size={24} className="text-gray-600 dark:text-gray-400" />
+          <X size={20} />
         </button>
 
-        {/* Left side: Content */}
-        <div className="flex-1 p-8 md:p-12 lg:p-20 flex flex-col justify-center">
+        <div className="relative flex-1 overflow-y-auto p-7 sm:p-10 lg:p-14">
+          <div className="flex items-center gap-3">
+            <span className="rounded-full border border-orange-200 bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.26em] text-orange-700">
+              Quick setup
+            </span>
+            <span className="text-xs font-semibold uppercase tracking-[0.26em] text-slate-400">
+              Step {currentStep} of 3
+            </span>
+          </div>
 
-          {/* Progress indicators */}
-          <div className="flex gap-3 mb-12">
-            {[1, 2, 3].map((step) => (
+          <div className="mt-8 flex gap-3">
+            {stepOrder.map((step) => (
               <div
                 key={step}
-                className={`h-2 w-20 rounded-full transition-colors duration-300 ${
+                className={`h-2 rounded-full transition-all duration-300 ${
                   step === currentStep
-                    ? 'bg-orange-600'
+                    ? 'w-24 bg-slate-950'
                     : step < currentStep
-                    ? 'bg-orange-300'
-                    : 'bg-gray-200 dark:bg-gray-700'
+                    ? 'w-16 bg-orange-300'
+                    : 'w-16 bg-slate-200'
                 }`}
               />
             ))}
           </div>
 
-          {/* Step 1: Get your unique URL */}
           {currentStep === 1 && (
-            <div className="flex-1 animate-in fade-in slide-in-from-right-5 duration-500">
-              <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-8 tracking-tight">
-                Step 1: Get your unique URL
+            <div className="mt-10">
+              <h1 className="font-display text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
+                Search your city and generate the feed.
               </h1>
-              <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-12 leading-relaxed max-w-xl">
-                Search for your city to generate a personalized <span className="font-bold text-orange-600">Webcal link</span>.
-                This unique URL allows you to sync real-time air quality forecasts directly to your favorite calendar application.
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
+                Air is Matter turns a city&apos;s 14-day AQI forecast into a private calendar subscription link. No file
+                download, no separate app, and no account setup before you can try it.
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-12">
-                <div className="flex items-start gap-5">
-                  <div className="flex-shrink-0 bg-orange-50 dark:bg-orange-950/30 p-4 rounded-2xl">
-                    <MapPin className="text-orange-600 w-7 h-7" />
+              <div className="mt-10 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-[30px] border border-white/80 bg-white/80 p-6 shadow-[0_24px_60px_-44px_rgba(15,23,42,0.35)]">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#fff2dd] text-[#ff7b2c]">
+                    <MapPin className="h-6 w-6" />
                   </div>
-                  <div>
-                    <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-1">Pick a City</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Enter any location worldwide for precise PM2.5 tracking.
-                    </p>
-                  </div>
+                  <h2 className="mt-5 text-2xl font-semibold tracking-tight text-slate-950">Pick a city</h2>
+                  <p className="mt-3 text-sm leading-7 text-slate-600">
+                    Search any supported location and pull in a live AQI forecast you can act on before the day starts.
+                  </p>
                 </div>
 
-                <div className="flex items-start gap-5">
-                  <div className="flex-shrink-0 bg-orange-50 dark:bg-orange-950/30 p-4 rounded-2xl">
-                    <Copy className="text-orange-600 w-7 h-7" />
+                <div className="rounded-[30px] border border-white/80 bg-white/80 p-6 shadow-[0_24px_60px_-44px_rgba(15,23,42,0.35)]">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#fff2dd] text-[#ff7b2c]">
+                    <Copy className="h-6 w-6" />
                   </div>
-                  <div>
-                    <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-1">Copy Link</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Get a secure webcal:// address ready for your calendar.
-                    </p>
-                  </div>
+                  <h2 className="mt-5 text-2xl font-semibold tracking-tight text-slate-950">Copy the webcal link</h2>
+                  <p className="mt-3 text-sm leading-7 text-slate-600">
+                    The generated URL is your reusable subscription feed. Paste it once and let your calendar keep it fresh.
+                  </p>
                 </div>
+              </div>
+
+              <div className="mt-8 rounded-[28px] border border-orange-200 bg-[#fff4e5] p-5 text-sm leading-7 text-orange-950">
+                <span className="font-semibold">Why this matters:</span> calendars are where decisions already happen.
+                Putting AQI there means you see rough-air days next to commutes, workouts, and family plans.
               </div>
             </div>
           )}
 
-          {/* Step 2: Add to Calendar */}
           {currentStep === 2 && (
-            <div className="flex-1 animate-in fade-in slide-in-from-right-5 duration-500 overflow-y-auto">
-              <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-8 tracking-tight">
-                Step 2: Add to Calendar
+            <div className="mt-10">
+              <h1 className="font-display text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
+                Paste it into the calendar you already use.
               </h1>
-              <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-12 leading-relaxed">
-                Follow these simple steps to paste your custom calendar link into your preferred desktop application.
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
+                The setup is intentionally boring: use your calendar&apos;s normal subscription flow and the AQI forecast
+                starts showing up where your schedule already lives.
               </p>
 
-              <div className="space-y-10">
-                {/* Google Calendar */}
-                <div>
-                  <div className="flex items-center gap-4 mb-5">
-                    <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center">
-                      <Calendar className="text-blue-600 dark:text-blue-400 w-6 h-6" />
+              <div className="mt-10 grid gap-4">
+                <div className="rounded-[30px] border border-white/80 bg-white/80 p-6 shadow-[0_24px_60px_-44px_rgba(15,23,42,0.35)]">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                      <Calendar className="h-6 w-6" />
                     </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Google Calendar</h2>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Web & Desktop App</p>
-                    </div>
-                  </div>
-                  <div className="space-y-4 pl-4">
-                    <div className="flex items-start gap-4">
-                      <span className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 text-sm font-bold flex items-center justify-center text-orange-600">
-                        1
-                      </span>
-                      <p className="text-base leading-relaxed text-gray-700 dark:text-gray-300">
-                        In the left sidebar, click the <span className="font-bold">+</span> icon next to{' '}
-                        <span className="bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded text-sm italic">
-                          "Other calendars"
-                        </span>.
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-4">
-                      <span className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 text-sm font-bold flex items-center justify-center text-orange-600">
-                        2
-                      </span>
-                      <p className="text-base leading-relaxed text-gray-700 dark:text-gray-300">
-                        Select <span className="font-bold text-orange-600">"From URL"</span> from the pop-up menu.
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-4">
-                      <span className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 text-sm font-bold flex items-center justify-center text-orange-600">
-                        3
-                      </span>
-                      <p className="text-base leading-relaxed text-gray-700 dark:text-gray-300">
-                        Paste your unique URL and click <span className="font-bold text-orange-600">Add calendar</span> to sync.
+                    <div className="flex-1">
+                      <h2 className="text-2xl font-semibold tracking-tight text-slate-950">Google Calendar</h2>
+                      <p className="mt-2 text-sm leading-7 text-slate-600">
+                        Open <span className="font-semibold text-slate-900">Other calendars</span>, choose{' '}
+                        <span className="font-semibold text-slate-900">From URL</span>, then paste your feed.
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Apple Calendar */}
-                <div>
-                  <div className="flex items-center gap-4 mb-5">
-                    <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center">
-                      <Calendar className="text-gray-700 dark:text-gray-300 w-6 h-6" />
+                <div className="rounded-[30px] border border-white/80 bg-white/80 p-6 shadow-[0_24px_60px_-44px_rgba(15,23,42,0.35)]">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+                      <Apple className="h-6 w-6" />
                     </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Apple Calendar</h2>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">macOS Application</p>
+                    <div className="flex-1">
+                      <h2 className="text-2xl font-semibold tracking-tight text-slate-950">Apple Calendar</h2>
+                      <p className="mt-2 text-sm leading-7 text-slate-600">
+                        Use <span className="font-semibold text-slate-900">File → New Calendar Subscription</span>, then
+                        paste the same webcal link and subscribe.
+                      </p>
                     </div>
                   </div>
-                  <div className="space-y-4 pl-4">
-                    <div className="flex items-start gap-4">
-                      <span className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 text-sm font-bold flex items-center justify-center text-orange-600">
-                        1
-                      </span>
-                      <p className="text-base leading-relaxed text-gray-700 dark:text-gray-300">
-                        Open the Calendar app, then click <span className="font-bold">File</span> in the top macOS menu bar.
-                      </p>
+                </div>
+
+                <div className="rounded-[30px] border border-white/80 bg-white/80 p-6 shadow-[0_24px_60px_-44px_rgba(15,23,42,0.35)]">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#fff2dd] text-[#ff7b2c]">
+                      <MonitorSmartphone className="h-6 w-6" />
                     </div>
-                    <div className="flex items-start gap-4">
-                      <span className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 text-sm font-bold flex items-center justify-center text-orange-600">
-                        2
-                      </span>
-                      <p className="text-base leading-relaxed text-gray-700 dark:text-gray-300">
-                        Choose <span className="font-bold text-orange-600 italic">"New Calendar Subscription..."</span> from the list.
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-4">
-                      <span className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 text-sm font-bold flex items-center justify-center text-orange-600">
-                        3
-                      </span>
-                      <p className="text-base leading-relaxed text-gray-700 dark:text-gray-300">
-                        Paste the URL and click <span className="font-bold text-orange-600">Subscribe</span>.
-                        Adjust your alert settings as needed.
+                    <div className="flex-1">
+                      <h2 className="text-2xl font-semibold tracking-tight text-slate-950">Outlook and mobile apps</h2>
+                      <p className="mt-2 text-sm leading-7 text-slate-600">
+                        Most calendar apps that support subscribed webcal feeds can use the same URL without any special handling.
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-8 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-2xl p-5 flex items-start gap-4">
-                <Info className="text-blue-500 w-5 h-5 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-blue-800 dark:text-blue-300">
-                  <strong>Pro tip:</strong> Subscribing via URL ensures your calendar automatically updates whenever
-                  the air quality forecast changes. You don't need to download any files.
-                </p>
+              <div className="mt-8 rounded-[28px] border border-blue-200 bg-blue-50 p-5 text-sm leading-7 text-blue-950">
+                <span className="font-semibold">Tip:</span> subscribed calendars refresh automatically. You do not need to
+                download a new file every day.
               </div>
             </div>
           )}
 
-          {/* Step 3: All Set! */}
           {currentStep === 3 && (
-            <div className="flex-1 animate-in fade-in slide-in-from-right-5 duration-500 text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full mb-6">
-                <CheckCircle className="text-green-600 dark:text-green-400 w-12 h-12" />
+            <div className="mt-10">
+              <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                <CheckCircle2 className="h-9 w-9" />
               </div>
-
-              <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
-                Step 3: All Set!
+              <h1 className="mt-6 font-display text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
+                You&apos;re set. The forecast now rides with your schedule.
               </h1>
-              <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto mb-12">
-                Your calendar will now automatically show the 14-day AQI forecast using intuitive emojis
-                🟢 🟡 🟠 🔴 to help you plan your days better.
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
+                Your calendar can now surface upcoming AQI conditions using quick visual cues like 🟢 🟡 🟠 🔴, so air quality
+                becomes part of planning instead of an afterthought.
               </p>
 
-              {/* Calendar Preview Mockup */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl p-6 max-w-md mx-auto">
-                <div className="text-left mb-4">
-                  <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">October 2024</h3>
+              <div className="mt-10 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-[30px] border border-white/80 bg-white/80 p-6 shadow-[0_24px_60px_-44px_rgba(15,23,42,0.35)]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">What changes now</p>
+                  <ul className="mt-4 space-y-3 text-sm leading-7 text-slate-600">
+                    <li className="flex items-start gap-3">
+                      <CheckCircle2 className="mt-1 h-4 w-4 text-emerald-600" />
+                      <span>High-AQI days become visible before you commit to outdoor plans.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle2 className="mt-1 h-4 w-4 text-emerald-600" />
+                      <span>The same feed works across devices that already share your calendar account.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle2 className="mt-1 h-4 w-4 text-emerald-600" />
+                      <span>You keep the forecast habit without adding another app to check every morning.</span>
+                    </li>
+                  </ul>
                 </div>
-                <div className="grid grid-cols-7 gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
-                  <div className="text-center">Sun</div>
-                  <div className="text-center">Mon</div>
-                  <div className="text-center">Tue</div>
-                  <div className="text-center">Wed</div>
-                  <div className="text-center">Thu</div>
-                  <div className="text-center">Fri</div>
-                  <div className="text-center">Sat</div>
-                </div>
-                <div className="grid grid-cols-7 gap-1">
-                  {/* Sample calendar days with AQI emojis */}
-                  {[
-                    { day: '1', emoji: '🟢' },
-                    { day: '2', emoji: '🟢' },
-                    { day: '3', emoji: '🟡' },
-                    { day: '4', emoji: '🔴' },
-                    { day: '5', emoji: '🟡' },
-                    { day: '6', emoji: '🟢' },
-                    { day: '7', emoji: '🟢' },
-                  ].map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-gray-50 dark:bg-gray-900/40 p-2 rounded aspect-square flex flex-col items-center justify-center"
-                    >
-                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{item.day}</span>
-                      <span className="text-lg">{item.emoji}</span>
-                    </div>
-                  ))}
+
+                <div className="rounded-[30px] border border-white/80 bg-white/80 p-6 shadow-[0_24px_60px_-44px_rgba(15,23,42,0.35)]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">What to do next</p>
+                  <div className="mt-4 flex flex-wrap gap-2 text-3xl">
+                    <span>🟢</span>
+                    <span>🟡</span>
+                    <span>🟠</span>
+                    <span>🔴</span>
+                  </div>
+                  <p className="mt-4 text-sm leading-7 text-slate-600">
+                    Try a city now, add the feed once, and watch the forecast settle into your regular planning loop.
+                  </p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Navigation buttons */}
-          <div className="flex items-center justify-between pt-10 border-t border-gray-200 dark:border-gray-700 mt-auto">
+          <div className="mt-10 flex items-center justify-between border-t border-slate-200 pt-8">
             <button
               onClick={currentStep > 1 ? handlePrevious : handleSkip}
-              className="text-gray-600 dark:text-gray-400 font-semibold hover:text-orange-600 transition-colors text-lg"
+              className="text-base font-semibold text-slate-500 transition hover:text-slate-900"
             >
-              {currentStep > 1 ? 'Back' : 'Skip tour'}
+              {currentStep > 1 ? 'Back' : 'Skip walkthrough'}
             </button>
+
             <button
               onClick={handleNext}
-              className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 px-12 rounded-2xl shadow-xl shadow-orange-200 dark:shadow-none transition transform hover:scale-[1.02] active:scale-[0.98] flex items-center gap-3 text-lg"
+              className="inline-flex items-center gap-3 rounded-full bg-slate-950 px-6 py-4 text-base font-semibold text-white shadow-[0_24px_60px_-28px_rgba(15,23,42,0.75)] transition hover:-translate-y-0.5 hover:bg-slate-900"
             >
-              {currentStep === 3 ? 'Start Using' : 'Next Step'}
-              <ArrowRight size={24} />
+              {currentStep === 3 ? 'Start using Air is Matter' : 'Next step'}
+              <ArrowRight size={18} />
             </button>
           </div>
         </div>
 
-        {/* Right side: Visual illustration (hidden on mobile) */}
-        <div className="hidden md:flex md:w-2/5 lg:w-[500px] bg-gradient-to-br from-orange-600 to-amber-500 relative items-center justify-center p-16">
+        <div className="relative hidden w-full overflow-hidden bg-gradient-to-br from-[#ff8c3b] via-[#ffb347] to-[#ffe5a3] p-10 text-slate-950 lg:flex lg:max-w-[31rem] lg:flex-col lg:justify-between">
           <div className="absolute inset-0 opacity-20">
             <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
               <defs>
-                <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="white" strokeWidth="0.5" />
+                <pattern id="onboarding-grid" width="18" height="18" patternUnits="userSpaceOnUse">
+                  <path d="M 18 0 L 0 0 0 18" fill="none" stroke="white" strokeWidth="0.6" />
                 </pattern>
               </defs>
-              <rect width="100%" height="100%" fill="url(#grid)" />
+              <rect width="100%" height="100%" fill="url(#onboarding-grid)" />
             </svg>
           </div>
 
-          <div className="relative z-10 w-full space-y-8">
-            {/* Illustration based on current step */}
+          <div className="relative z-10">
+            <p className="text-xs font-semibold uppercase tracking-[0.26em] text-white/80">Air is Matter</p>
+            <h2 className="mt-4 font-display text-4xl font-semibold leading-tight text-white">
+              A forecast that works because it shows up where your plans already live.
+            </h2>
+          </div>
+
+          <div className="relative z-10 mt-10 space-y-6">
             {currentStep === 1 && (
               <>
-                <div className="bg-white/95 backdrop-blur rounded-3xl p-6 shadow-2xl transform -rotate-3 hover:rotate-0 transition-all duration-700">
-                  <div className="flex items-center gap-4 bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 mb-5">
-                    <MapPin className="text-gray-400 w-5 h-5" />
-                    <div className="h-3 w-40 bg-gray-200 rounded-full"></div>
+                <div className="rounded-[30px] border border-white/50 bg-white/88 p-6 shadow-2xl shadow-orange-900/20">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Search preview</p>
+                  <div className="mt-4 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                    <MapPin className="h-5 w-5 text-slate-300" />
+                    <span className="text-sm font-medium text-slate-500">Type city name...</span>
                   </div>
-                  <div className="p-4 bg-orange-50 rounded-2xl border-2 border-orange-100 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">🏙️</span>
-                      <span className="font-bold text-orange-900 tracking-tight">London, UK</span>
+                  <div className="mt-4 rounded-2xl border border-orange-200 bg-[#fff4e5] p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-slate-900">London, UK</span>
+                      <span className="text-xl">🟡</span>
                     </div>
-                    <CheckCircle className="text-orange-400 w-6 h-6" />
+                    <p className="mt-2 text-sm text-slate-600">14-day AQI forecast ready to subscribe</p>
                   </div>
                 </div>
-                <div className="flex justify-center -my-4 relative z-20">
-                  <div className="bg-white p-3 rounded-full shadow-xl">
-                    <ArrowRight className="text-orange-600 w-8 h-8 transform rotate-90" />
-                  </div>
-                </div>
-                <div className="bg-white/95 backdrop-blur rounded-3xl p-6 shadow-2xl transform rotate-3 hover:rotate-0 transition-all duration-700">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
-                      <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
-                      <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
-                    </div>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                      Webcal Generator
-                    </span>
-                  </div>
-                  <div className="bg-gray-900 rounded-2xl p-4 flex items-center justify-between gap-4 border border-gray-800">
-                    <div className="flex-1 truncate">
-                      <code className="text-orange-400 text-xs font-mono">webcal://aqi.cal/v1/u?id=4829...</code>
-                    </div>
-                    <div className="bg-orange-600/20 border border-orange-600/40 rounded-xl p-2.5 cursor-pointer">
-                      <Copy className="text-orange-400 w-5 h-5" />
-                    </div>
-                  </div>
+
+                <div className="rounded-[30px] border border-white/40 bg-slate-950 p-6 text-white shadow-2xl shadow-orange-900/20">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Generated feed</p>
+                  <code className="mt-4 block truncate text-sm text-[#ffd37a]">webcal://air-is-matter.com/api/ics?city=London</code>
                 </div>
               </>
             )}
 
             {currentStep === 2 && (
-              <div className="bg-white/95 backdrop-blur rounded-3xl p-8 shadow-2xl">
-                <div className="space-y-6">
-                  <div className="flex items-center gap-3 text-gray-800">
-                    <Calendar className="w-10 h-10 text-blue-600" />
-                    <h3 className="text-2xl font-bold">Calendar Apps</h3>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100">
-                      <CheckCircle className="text-blue-600 w-5 h-5" />
-                      <span className="font-semibold text-gray-800">Google Calendar</span>
+              <div className="rounded-[30px] border border-white/50 bg-white/88 p-6 shadow-2xl shadow-orange-900/20">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Compatible platforms</p>
+                <div className="mt-5 space-y-3">
+                  {[
+                    { label: 'Google Calendar', icon: Calendar, tone: 'bg-blue-50 text-blue-600 border-blue-100' },
+                    { label: 'Apple Calendar', icon: Apple, tone: 'bg-slate-100 text-slate-700 border-slate-200' },
+                    { label: 'Outlook and mobile', icon: MonitorSmartphone, tone: 'bg-[#fff2dd] text-[#ff7b2c] border-orange-100' },
+                  ].map(({ label, icon: Icon, tone }) => (
+                    <div key={label} className={`flex items-center gap-3 rounded-2xl border px-4 py-4 ${tone}`}>
+                      <Icon className="h-5 w-5" />
+                      <span className="font-semibold">{label}</span>
                     </div>
-                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                      <CheckCircle className="text-gray-600 w-5 h-5" />
-                      <span className="font-semibold text-gray-800">Apple Calendar</span>
-                    </div>
-                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                      <CheckCircle className="text-gray-600 w-5 h-5" />
-                      <span className="font-semibold text-gray-800">Outlook</span>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             )}
 
             {currentStep === 3 && (
-              <div className="bg-white/95 backdrop-blur rounded-3xl p-8 shadow-2xl text-center">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-6">
-                  <CheckCircle className="text-green-600 w-12 h-12" />
+              <>
+                <div className="rounded-[30px] border border-white/50 bg-white/88 p-6 shadow-2xl shadow-orange-900/20">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Calendar week</p>
+                  <div className="mt-5 grid grid-cols-4 gap-3">
+                    {[
+                      { day: 'Mon', emoji: '🟢' },
+                      { day: 'Tue', emoji: '🟡' },
+                      { day: 'Wed', emoji: '🟠' },
+                      { day: 'Thu', emoji: '🔴' },
+                    ].map((item) => (
+                      <div key={item.day} className="rounded-2xl border border-slate-200 bg-white p-3 text-center">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">{item.day}</p>
+                        <div className="mt-3 text-2xl">{item.emoji}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <h3 className="text-3xl font-bold text-gray-800 mb-4">You're all set!</h3>
-                <p className="text-gray-600 mb-6">
-                  Your calendar now shows the 14-day AQI forecast with color-coded emojis.
-                </p>
-                <div className="flex justify-center gap-2 text-4xl">
-                  <span>🟢</span>
-                  <span>🟡</span>
-                  <span>🟠</span>
-                  <span>🔴</span>
+
+                <div className="rounded-[30px] border border-white/40 bg-slate-950 p-6 text-white shadow-2xl shadow-orange-900/20">
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="h-5 w-5 text-[#ffd37a]" />
+                    <span className="font-semibold">Auto-refreshing subscription</span>
+                  </div>
+                  <p className="mt-3 text-sm leading-7 text-slate-300">
+                    Add the feed once and let your calendar quietly keep the forecast in sync.
+                  </p>
                 </div>
-              </div>
+              </>
             )}
           </div>
         </div>

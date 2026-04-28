@@ -1,0 +1,17 @@
+{
+  "name": "Air is Matter",
+  "short_name": "AirMatter",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f1e8",
+  "theme_color": "#f7f1e8",
+  "description": "Add a 14-day AQI forecast to Google Calendar, Apple Calendar, Outlook, and mobile calendar apps.",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

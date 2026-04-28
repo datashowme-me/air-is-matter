@@ -1,5 +1,5 @@
 {
-  "name": "Air is Matter - AQI Forecaster",
-  "description": "Generate a 14-day Air Quality Index forecast calendar for any city, compatible with iOS and macOS Calendar.",
+  "name": "Air is Matter - Air Quality Calendar",
+  "description": "Add a 14-day AQI forecast calendar to Google Calendar, Apple Calendar, Outlook, and mobile calendar apps.",
   "requestFramePermissions": []
 }

@@ -4,6 +4,33 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Air is Matter - Air Quality Calendar</title>
+    <meta
+      name="description"
+      content="Add a 14-day AQI forecast to Google Calendar, Apple Calendar, Outlook, and mobile calendar apps."
+    />
+    <meta name="robots" content="index,follow" />
+    <meta name="theme-color" content="#f7f1e8" />
+    <link rel="canonical" href="https://air-is-matter.pages.dev/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Air is Matter" />
+    <meta property="og:title" content="Air is Matter - Air Quality Calendar" />
+    <meta
+      property="og:description"
+      content="Add a 14-day AQI forecast to Google Calendar, Apple Calendar, Outlook, and mobile calendar apps."
+    />
+    <meta property="og:url" content="https://air-is-matter.pages.dev/" />
+    <meta property="og:image" content="https://air-is-matter.pages.dev/og-air-is-matter.png" />
+    <meta property="og:image:alt" content="Air is Matter landing page preview" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Air is Matter - Air Quality Calendar" />
+    <meta
+      name="twitter:description"
+      content="Add a 14-day AQI forecast to Google Calendar, Apple Calendar, Outlook, and mobile calendar apps."
+    />
+    <meta name="twitter:image" content="https://air-is-matter.pages.dev/og-air-is-matter.png" />
+    <meta name="twitter:image:alt" content="Air is Matter landing page preview" />
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-5R3Z0CS00B"></script>
@@ -15,13 +42,17 @@
       gtag('config', 'G-5R3Z0CS00B');
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    >
     <script>
       tailwind.config = {
         theme: {
           extend: {
             fontFamily: {
-              sans: ['Inter', 'sans-serif'],
+              sans: ['Manrope', 'sans-serif'],
+              display: ['Sora', 'sans-serif'],
             },
             colors: {
               glass: "rgba(255, 255, 255, 0.7)",
@@ -33,10 +64,56 @@
     </script>
     <style>
       body {
-        background-color: #ffffff;
+        background-color: #f7f1e8;
+        color: #0f172a;
+        font-family: 'Manrope', sans-serif;
         min-height: 100vh;
       }
     </style>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "name": "Air is Matter",
+            "url": "https://air-is-matter.pages.dev/",
+            "applicationCategory": "WeatherApplication",
+            "operatingSystem": "Web",
+            "description": "Add a 14-day AQI forecast to Google Calendar, Apple Calendar, Outlook, and mobile calendar apps."
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Do I need to install a separate app?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. Air is Matter generates a calendar subscription URL. You paste it into the calendar app you already use, and that app handles the sync."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Which calendar apps work with it?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Google Calendar, Apple Calendar, Outlook, and most calendar apps that support subscribed webcal feeds should work."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Will the AQI forecast update automatically?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Once you subscribe to the feed, your calendar app periodically refreshes it, so the upcoming 14-day forecast stays current without manual downloads."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
   <script type="importmap">
 {
   "imports": {

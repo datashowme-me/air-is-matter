@@ -1,4 +1,4 @@
-import { fetchAQIForecast } from "../../services/weatherService";
+import { fetchAQIForecastData } from "../../services/aqiService";
 import { generateICS } from "../../utils/icsGenerator";
 
 export async function onRequest(context: any): Promise<Response> {
@@ -11,7 +11,7 @@ export async function onRequest(context: any): Promise<Response> {
   }
 
   try {
-    const data = await fetchAQIForecast(city);
+    const data = await fetchAQIForecastData(city);
     const icsContent = generateICS(data);
 
     return new Response(icsContent, {
